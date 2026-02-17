@@ -4,6 +4,7 @@ import (
 	"github.com/elham-abdu/cyberbullyprevention/config"
 	"github.com/elham-abdu/cyberbullyprevention/models"
 	"github.com/elham-abdu/cyberbullyprevention/utils"
+    "github.com/elham-abdu/cyberbullyprevention/services"
 	"encoding/json"
     "time"
     "github.com/golang-jwt/jwt/v5"
@@ -139,39 +140,46 @@ type CreatePostInput struct {
     Content string `json:"content"`
 }
 func CreatePost(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-    if r.Method != http.MethodPost {
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return
-    }
+	var input CreatePostInput
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
 
-    var input CreatePostInput
-    err := json.NewDecoder(r.Body).Decode(&input)
-    if err != nil {
-        http.Error(w, "Invalid input", http.StatusBadRequest)
-        return
-    }
+	if input.Content == "" {
+		http.Error(w, "Content is required", http.StatusBadRequest)
+		return
+	}
 
-    if input.Content == "" {
-        http.Error(w, "Content is required", http.StatusBadRequest)
-        return
-    }
+	// ✅ Analyze toxicity
+	score, flagged, err := services.AnalyzeToxicity(input.Content)
+	if err != nil {
+		http.Error(w, "Toxicity service failed", http.StatusInternalServerError)
+		return
+	}
 
+	userID := r.Context().Value("user_id").(uint)
 
-    userID := r.Context().Value("user_id").(uint)
+	post := models.Post{
+		UserID:        userID,
+		Content:       input.Content,
+		ToxicityScore: int(score),
+		IsFlagged:     flagged,
+	}
 
-    
-    post := models.Post{
-        UserID:  userID,
-        Content: input.Content,
-    }
+	config.DB.Create(&post)
 
-    config.DB.Create(&post)
-
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(post)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(post)
 }
+
 func GetMyPosts(w http.ResponseWriter, r *http.Request) {
     userID := r.Context().Value("user_id").(uint)
 
