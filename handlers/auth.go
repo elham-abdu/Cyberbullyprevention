@@ -270,3 +270,22 @@ func AdminDashboard(w http.ResponseWriter, r *http.Request) {
 		"message": "Welcome to the admin dashboard!",
 	})
 }
+func GetFlaggedPosts(w http.ResponseWriter, r *http.Request) {
+    // 1️⃣ Ensure the request method is GET
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    // 2️⃣ Query the database for flagged posts
+    var flaggedPosts []models.Post
+    result := config.DB.Where("is_flagged = ?", true).Find(&flaggedPosts)
+    if result.Error != nil {
+        http.Error(w, "Error fetching flagged posts", http.StatusInternalServerError)
+        return
+    }
+
+    // 3️⃣ Return the posts as JSON
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(flaggedPosts)
+}

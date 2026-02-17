@@ -36,6 +36,14 @@ func main() {
         ),
     ),
 )
+http.Handle("/admin/flagged-posts",
+    middleware.JWTAuth(
+        middleware.RoleAuth("admin")(
+            http.HandlerFunc(handlers.GetFlaggedPosts),
+        ),
+    ),
+)
+
 
     
     log.Println("Server running on :8080")
