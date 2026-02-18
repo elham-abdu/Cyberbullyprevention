@@ -8,6 +8,7 @@ import (
 	"encoding/json"
     "time"
     "github.com/golang-jwt/jwt/v5"
+    "log"
 	
 )
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -157,27 +158,60 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ✅ Analyze toxicity
-	score, flagged, err := services.AnalyzeToxicity(input.Content)
+	// ✅ Analyze toxicity using IBM ML model
+	result, err := services.AnalyzeToxicityWithIBM(input.Content)
 	if err != nil {
-		http.Error(w, "Toxicity service failed", http.StatusInternalServerError)
+		log.Printf("IBM ML model failed: %v, falling back to basic analysis", err)
+		// Fallback to basic analysis if ML fails
+		score, flagged, fallbackErr := services.AnalyzeToxicity(input.Content)
+		if fallbackErr != nil {
+			http.Error(w, "Toxicity service failed", http.StatusInternalServerError)
+			return
+		}
+		
+		userID := r.Context().Value("user_id").(uint)
+		post := models.Post{
+			UserID:        userID,
+			Content:       input.Content,
+			ToxicityScore: int(score),
+			IsFlagged:     flagged,
+		}
+		config.DB.Create(&post)
+		
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(post)
 		return
 	}
 
 	userID := r.Context().Value("user_id").(uint)
 
+	// Create post with ML results
 	post := models.Post{
 		UserID:        userID,
 		Content:       input.Content,
-		ToxicityScore: int(score),
-		IsFlagged:     flagged,
+		ToxicityScore: int(result.Score),
+		IsFlagged:     result.IsFlagged,
 	}
 
 	config.DB.Create(&post)
 
+	// Return enhanced response with ML analysis
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(post)
+	
+	response := map[string]interface{}{
+		"post": post,
+		"analysis": map[string]interface{}{
+			"score":       result.Score,
+			"severity":    result.Severity,
+			"sentiment":   result.Sentiment,
+			"categories":  result.Categories,
+			"suggestions": result.Suggestions,
+			"confidence":  result.Confidence,
+		},
+	}
+	json.NewEncoder(w).Encode(response)
 }
 
 func GetMyPosts(w http.ResponseWriter, r *http.Request) {

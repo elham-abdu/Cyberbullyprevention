@@ -18,6 +18,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('Making request to:', config.url, config.data); // Debug log
     return config;
   },
   (error) => {
@@ -27,17 +28,27 @@ api.interceptors.request.use(
 
 // Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('Response received:', response.data); // Debug log
+    return response;
+  },
   (error) => {
-    if (error.response?.status === 401) {
+    console.error('API Error:', error.response?.data || error.message); // Debug log
+    
+    if (error.code === 'ERR_NETWORK') {
+      toast.error('Cannot connect to server. Make sure backend is running on port 8080');
+    } else if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
       toast.error('Session expired. Please login again.');
     } else if (error.response?.status === 403) {
       toast.error('You do not have permission to perform this action');
+    } else if (error.response?.data) {
+      // Show the actual error message from backend
+      toast.error(error.response.data);
     } else {
-      toast.error(error.response?.data || 'An error occurred');
+      toast.error('An error occurred. Please try again.');
     }
     return Promise.reject(error);
   }
