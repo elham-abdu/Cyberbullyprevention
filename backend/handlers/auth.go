@@ -289,3 +289,65 @@ func GetFlaggedPosts(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(flaggedPosts)
 }
+func MarkPostSafe(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    type Input struct {
+        PostID uint `json:"post_id"`
+    }
+
+    var input Input
+    err := json.NewDecoder(r.Body).Decode(&input)
+    if err != nil {
+        http.Error(w, "Invalid input", http.StatusBadRequest)
+        return
+    }
+
+    var post models.Post
+    result := config.DB.First(&post, input.PostID)
+    if result.Error != nil {
+        http.Error(w, "Post not found", http.StatusNotFound)
+        return
+    }
+
+    // Mark the post as safe
+    post.IsFlagged = false
+    config.DB.Save(&post)
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{"message": "Post marked as safe"})
+}
+
+func DeleteFlaggedPost(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodDelete {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    type Input struct {
+        PostID uint `json:"post_id"`
+    }
+
+    var input Input
+    err := json.NewDecoder(r.Body).Decode(&input)
+    if err != nil {
+        http.Error(w, "Invalid input", http.StatusBadRequest)
+        return
+    }
+
+    var post models.Post
+    result := config.DB.First(&post, input.PostID)
+    if result.Error != nil {
+        http.Error(w, "Post not found", http.StatusNotFound)
+        return
+    }
+
+    // Delete the post
+    config.DB.Delete(&post)
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{"message": "Post deleted successfully"})
+}
