@@ -1,4 +1,4 @@
-# CyberGuard API
+# Cyberbully prevention 
 
 A production-ready cyberbullying prevention API with ML-powered toxicity detection.
 
