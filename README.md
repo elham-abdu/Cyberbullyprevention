@@ -1,4 +1,4 @@
-# Cyberbully prevention in social media
+# Cyberbully prevention, in social media
 
 production-ready cyberbullying prevention API with ML-powered toxicity detection.
 
