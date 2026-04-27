@@ -2,11 +2,11 @@
 
 production-ready cyberbullying prevention API with ML-powered toxicity detection.
 
-## 🚀 Overview
+##  Overview
 
 CyberGuard provides real-time content moderation through a REST API, using IBM's pre-trained BERT model to detect toxic language across 6 categories: toxicity, severe toxicity, obscenity, threats, insults, and identity hate.
 
-## ✨ Features
+##  Features
 
 - **JWT Authentication** - Secure user registration/login with role-based access
 - **ML Toxicity Detection** - Real-time content analysis with 90%+ accuracy
@@ -14,13 +14,13 @@ CyberGuard provides real-time content moderation through a REST API, using IBM's
 - **Admin Dashboard** - Review and manage flagged content
 - **Detailed Analysis** - Multi-category toxicity scores with severity levels
 
-## 🛠 Tech Stack
+## Tech Stack
 
 **Backend:** Go 1.21+, GORM, PostgreSQL, JWT, Gorilla Mux  
 **ML Engine:** IBM MAX Toxic Comment Classifier (BERT) in Docker  
 **Frontend:** React 18, TypeScript, Vite, TailwindCSS, React Router
 
-## 📦 Installation
+##  Installation
 
 ### Prerequisites
 - Go 1.21+, Docker, PostgreSQL 14+, Node.js 18+
@@ -47,7 +47,7 @@ npm install
 npm run dev
 ```
 
-## 🔌 API Endpoints
+##  API Endpoints
 
 ### Public
 - `POST /register` - Create account
@@ -65,7 +65,7 @@ npm run dev
 - `POST /admin/posts/mark-safe` - Approve content
 - `DELETE /admin/posts/delete-flagged` - Remove toxic content
 
-## 🧠 ML Analysis Example
+##  ML Analysis Example
 
 ```json
 Input: "I'm going to kill you"
@@ -95,14 +95,14 @@ JWT_SECRET=your-secret-key
 VITE_API_URL=http://localhost:8080
 ```
 
-## 📊 Database Schema
+##  Database Schema
 
 ```sql
 users: id, email, password_hash, role, timestamps
 posts: id, user_id, content, toxicity_score, is_flagged, severity, sentiment, timestamps
 ```
 
-## 🔒 Security
+##  Security
 
 - bcrypt password hashing
 - 24-hour JWT expiration
@@ -110,20 +110,20 @@ posts: id, user_id, content, toxicity_score, is_flagged, severity, sentiment, ti
 - CORS configured for frontend
 - Parameterized queries via GORM
 
-## 🐳 Docker Deployment
+##  Docker Deployment
 
 ```bash
 # Build and run all services
 docker-compose up -d
 ```
 
-## 📈 Performance
+##  Performance
 
 - Response time: 200-500ms per request
 - Throughput: 50+ req/sec
 - ML accuracy: ~90% on benchmarks
 
-## 📝 License
+##  License
 
 MIT © Elham Abdu
 
