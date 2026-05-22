@@ -1,6 +1,5 @@
 # Cyberbully prevention, in social media
 production-ready cyberbullying prevention API with ML-powered toxicity detection.
-
 ##  Overview
 CyberGuard provides real-time content moderation through a REST API, using IBM's pre-trained BERT model to detect toxic language across 6 categories: toxicity, severe toxicity, obscenity, threats, insults, and identity hate.
 
