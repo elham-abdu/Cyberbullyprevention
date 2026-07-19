@@ -17,12 +17,15 @@ CyberGuard provides real-time content moderation through a REST API, using IBM's
 ## Tech Stack
 
 **Backend:** Go 1.21+, GORM, PostgreSQL, JWT, Gorilla Mux  
-**ML Engine:** IBM MAX Toxic Comment Classifier (BERT) in Docker  
+
+**ML Engine:** IBM MAX Toxic Comment Classifier (BERT) in Docker 
+
 **Frontend:** React 18, TypeScript, Vite, TailwindCSS, React Router
 
 ##  Installation
 
 ### Prerequisites
+
 - Go 1.21+, Docker, PostgreSQL 14+, Node.js 18+
 
 ### Quick Start
